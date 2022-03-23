@@ -23,7 +23,8 @@ from OpenGL.GLES3.VERSION.GLES3_3_0 import *
 
 from OpenGL.GL import shaders
 
-from gl_helpers import *
+from picamera2.previews.gl_helpers import *
+
 
 class EglState:
     def __init__(self):
@@ -96,6 +97,11 @@ class QGlPicamera2(QWidget):
                                                self)
         self.camera_notifier.activated.connect(self.handle_requests)
 
+    def __del__(self):
+        del self.camera_notifier
+        eglDestroySurface(self.egl.display, self.surface)
+        self.surface = None
+
     def paintEngine(self):
         return None
 
@@ -141,10 +147,10 @@ class QGlPicamera2(QWidget):
         glUseProgram(program)
 
         vertPositions = [
-            0.0,  0.0,
-            1.0,  0.0,
-            1.0,  1.0,
-            0.0,  1.0
+            0.0, 0.0,
+            1.0, 0.0,
+            1.0, 1.0,
+            0.0, 1.0
         ]
 
         inputAttrib = glGetAttribLocation(program, "aPosition")
@@ -224,14 +230,14 @@ class QGlPicamera2(QWidget):
     def repaint(self, completed_request):
         if completed_request.request not in self.buffers:
             if self.stop_count != self.picamera2.stop_count:
-                if self.picamera2.verbose:
+                if self.picamera2.verbose_console:
                     print("Garbage collect", len(self.buffers), "textures")
                 for (req, buffer) in self.buffers.items():
                     glDeleteTextures(buffer.texture, 1)
                 self.buffers = {}
                 self.stop_count = self.picamera2.stop_count
 
-            if self.picamera2.verbose:
+            if self.picamera2.verbose_console:
                 print("Make buffer for request", completed_request.request)
             self.buffers[completed_request.request] = self.Buffer(self.egl.display, completed_request)
 

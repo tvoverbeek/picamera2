@@ -1,8 +1,9 @@
 from v4l2 import *
 import io
 
+
 class Encoder:
-    
+
     def __init__(self):
         self._width = 0
         self._height = 0
@@ -54,11 +55,7 @@ class Encoder:
         elif value == "XBGR8888":
             self._format = V4L2_PIX_FMT_BGR32
         elif value == "XRGB8888":
-            """
-            Currently get the following using this format:
-            OSError: [Errno 22] Invalid argument
-            """
-            self._format = V4L2_PIX_FMT_XBGR32
+            self._format = V4L2_PIX_FMT_RGBA32
         else:
             raise RuntimeError("Invalid format")
 
